@@ -6,9 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#25D366',
-        secondary: '#128C7E',
-        dark: '#075E54',
+        primary: 'var(--primary)',
+        'primary-light': 'var(--primary-light)',
+        secondary: 'var(--accent)',
+        dark: 'var(--bg-main)',
+      },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
     },
   },
