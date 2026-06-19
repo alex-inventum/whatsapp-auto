@@ -17,9 +17,7 @@ export default function AutoRepliesPage() {
   const [matchType, setMatchType] = useState('contains');
   const [response, setResponse] = useState('');
 
-  useEffect(() => {
-    loadRules();
-  }, []);
+  useEffect(() => { loadRules(); }, []);
 
   async function loadRules() {
     const { data } = await supabase.from('auto_replies').select('*');
@@ -28,14 +26,8 @@ export default function AutoRepliesPage() {
 
   async function addRule() {
     if (!keyword || !response) return;
-    await supabase.from('auto_replies').insert({
-      keyword,
-      match_type: matchType,
-      response,
-      active: true,
-    });
-    setKeyword('');
-    setResponse('');
+    await supabase.from('auto_replies').insert({ keyword, match_type: matchType, response, active: true });
+    setKeyword(''); setResponse('');
     loadRules();
   }
 
@@ -50,78 +42,72 @@ export default function AutoRepliesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-dark text-white p-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-xl font-bold">Respuestas Automaticas</h1>
-        </div>
-      </header>
+    <div className="min-h-screen p-6 md:p-10 max-w-5xl mx-auto">
+      <div className="mb-8 animate-fade-in">
+        <a href="/dashboard" className="text-xs mb-3 inline-block" style={{color: 'var(--primary)'}}>← Volver al Dashboard</a>
+        <h1 className="text-2xl font-bold" style={{color: 'var(--text-primary)'}}>Respuestas Automaticas</h1>
+        <p className="text-sm mt-1" style={{color: 'var(--text-secondary)'}}>Configura respuestas que se envian automaticamente segun palabras clave</p>
+      </div>
 
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        {/* Add new rule */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border space-y-4">
-          <h2 className="font-semibold">Nueva Regla</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              type="text"
-              placeholder="Palabra clave"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
-            <select
-              value={matchType}
-              onChange={(e) => setMatchType(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            >
-              <option value="contains">Contiene</option>
-              <option value="exact">Exacto</option>
-              <option value="startsWith">Empieza con</option>
-            </select>
-            <input
-              type="text"
-              placeholder="Respuesta automatica"
-              value={response}
-              onChange={(e) => setResponse(e.target.value)}
-              className="border rounded-lg px-3 py-2"
-            />
+      {/* Add new rule */}
+      <div className="card p-6 mb-6 animate-fade-in" style={{animationDelay: '0.1s'}}>
+        <h2 className="font-semibold mb-4" style={{color: 'var(--text-primary)'}}>Nueva Regla</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Palabra clave..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className="input"
+          />
+          <select value={matchType} onChange={(e) => setMatchType(e.target.value)} className="input">
+            <option value="contains">Contiene</option>
+            <option value="exact">Exacto</option>
+            <option value="startsWith">Empieza con</option>
+          </select>
+          <input
+            type="text"
+            placeholder="Respuesta automatica..."
+            value={response}
+            onChange={(e) => setResponse(e.target.value)}
+            className="input"
+          />
+        </div>
+        <button onClick={addRule} className="btn-primary">+ Agregar Regla</button>
+      </div>
+
+      {/* Rules list */}
+      <div className="space-y-2">
+        {rules.length === 0 && (
+          <div className="text-center py-12" style={{color: 'var(--text-secondary)'}}>
+            <p className="text-lg mb-1">Sin reglas configuradas</p>
+            <p className="text-sm">Agrega tu primera regla de respuesta automatica</p>
           </div>
-          <button
-            onClick={addRule}
-            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary"
-          >
-            Agregar Regla
-          </button>
-        </div>
-
-        {/* Rules list */}
-        <div className="space-y-2">
-          {rules.map((rule) => (
-            <div key={rule.id} className="bg-white rounded-lg p-4 border flex items-center justify-between">
-              <div>
-                <span className="font-medium">{rule.keyword}</span>
-                <span className="text-gray-400 mx-2">→</span>
-                <span className="text-gray-600">{rule.response}</span>
-                <span className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded">{rule.match_type}</span>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => toggleRule(rule.id, rule.active)}
-                  className={`px-3 py-1 rounded text-sm ${rule.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
-                >
-                  {rule.active ? 'Activa' : 'Inactiva'}
-                </button>
-                <button
-                  onClick={() => deleteRule(rule.id)}
-                  className="px-3 py-1 rounded text-sm bg-red-100 text-red-700"
-                >
-                  Eliminar
-                </button>
+        )}
+        {rules.map((rule, i) => (
+          <div key={rule.id} className="card p-4 flex items-center justify-between animate-slide-in" style={{animationDelay: `${i * 0.05}s`}}>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${rule.active ? 'bg-green-400' : 'bg-gray-500'}`}/>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-sm" style={{color: 'var(--text-primary)'}}>{rule.keyword}</span>
+                  <span className="tag tag-blue">{rule.match_type}</span>
+                </div>
+                <p className="text-xs mt-0.5 truncate" style={{color: 'var(--text-secondary)'}}>{rule.response}</p>
               </div>
             </div>
-          ))}
-        </div>
+            <div className="flex gap-2 flex-shrink-0 ml-4">
+              <button
+                onClick={() => toggleRule(rule.id, rule.active)}
+                className={`tag cursor-pointer ${rule.active ? 'tag-green' : 'tag-red'}`}
+              >
+                {rule.active ? 'Activa' : 'Inactiva'}
+              </button>
+              <button onClick={() => deleteRule(rule.id)} className="btn-danger">Eliminar</button>
+            </div>
+          </div>
+        ))}
       </div>
-    </main>
+    </div>
   );
 }
