@@ -1,7 +1,7 @@
 [build]
-  builder = "heroku/buildpacks:20"
+  builder = "DOCKERFILE"
 
 [deploy]
   startCommand = "node src/index.js"
   healthcheckPath = "/health"
-  restartPolicyType = "on-failure"
+  restartPolicyType = "ON_FAILURE"
