@@ -3,11 +3,168 @@
 @tailwind utilities;
 
 :root {
-  --primary: #25D366;
-  --secondary: #128C7E;
-  --dark: #075E54;
+  --primary: #00A884;
+  --primary-light: #00CF9D;
+  --primary-dark: #008F72;
+  --accent: #5B5EA6;
+  --bg-main: #111B21;
+  --bg-card: #1F2C33;
+  --bg-hover: #2A3942;
+  --text-primary: #E9EDEF;
+  --text-secondary: #8696A0;
+  --border: #2A3942;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-hover) transparent;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply text-sm;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.25s ease-out forwards;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(31, 44, 51, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(42, 57, 66, 0.6);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 4px 12px rgba(0, 168, 132, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+  @apply px-4 py-2.5 rounded-lg font-medium transition-all duration-200;
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+}
+
+.btn-secondary {
+  @apply px-4 py-2.5 rounded-lg font-medium transition-all duration-200;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card);
+  border-color: var(--text-secondary);
+}
+
+.btn-danger {
+  @apply px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200;
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* Inputs */
+.input {
+  @apply w-full px-4 py-2.5 rounded-lg outline-none transition-all duration-200;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.2);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Select */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238696A0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Tags */
+.tag {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+}
+
+.tag-green {
+  background: rgba(0, 168, 132, 0.15);
+  color: var(--primary-light);
+}
+
+.tag-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #FCA5A5;
+}
+
+.tag-purple {
+  background: rgba(91, 94, 166, 0.2);
+  color: #A5A8F0;
+}
+
+.tag-blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93C5FD;
+}
+
+/* Sidebar nav */
+.nav-item {
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-sm;
+  color: var(--text-secondary);
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: rgba(0, 168, 132, 0.12);
+  color: var(--primary-light);
 }
