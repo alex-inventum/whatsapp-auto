@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "chromium"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm install"]
 
 [start]
 cmd = "node src/index.js"
-
-[variables]
-PUPPETEER_EXECUTABLE_PATH = "/usr/bin/chromium"
