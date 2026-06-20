@@ -1,46 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-const OBSIDIAN_HOST = 'https://127.0.0.1:27124';
-const OBSIDIAN_KEY = 'Bearer 02ddc495339ce71c4ba10b659c9ab9878610e0e2494c4a561677213f8fc3e172';
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
+// GET ?key=info  -> devuelve { content, label }
 export async function GET(req: NextRequest) {
-  const path = req.nextUrl.searchParams.get('path');
-  if (!path) return NextResponse.json({ error: 'path required' }, { status: 400 });
+  const key = req.nextUrl.searchParams.get('key');
 
-  try {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    const res = await fetch(`${OBSIDIAN_HOST}/vault/${encodeURIComponent(path)}`, {
-      headers: { Authorization: OBSIDIAN_KEY },
-    });
-    if (!res.ok) return NextResponse.json({ content: '' });
-    const content = await res.text();
-    return NextResponse.json({ content });
-  } catch {
-    return NextResponse.json({ content: '', error: 'Connection failed' });
+  if (key) {
+    const { data, error } = await supabase.from('knowledge').select('*').eq('key', key).single();
+    if (error || !data) return NextResponse.json({ content: '', label: '' });
+    return NextResponse.json({ content: data.content || '', label: data.label || '' });
   }
+
+  // Sin key: devuelve todas las entradas
+  const { data } = await supabase.from('knowledge').select('*').order('key');
+  return NextResponse.json({ items: data || [] });
 }
 
+// POST { key, content } -> guarda
 export async function POST(req: NextRequest) {
-  const { path, content } = await req.json();
-  if (!path || content === undefined) {
-    return NextResponse.json({ error: 'path and content required' }, { status: 400 });
+  const { key, content } = await req.json();
+  if (!key || content === undefined) {
+    return NextResponse.json({ error: 'key and content required' }, { status: 400 });
   }
 
-  try {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    const res = await fetch(`${OBSIDIAN_HOST}/vault/${encodeURIComponent(path)}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: OBSIDIAN_KEY,
-        'Content-Type': 'text/markdown',
-      },
-      body: content,
-    });
-    if (res.ok || res.status === 204) {
-      return NextResponse.json({ success: true });
-    }
-    return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
-  } catch {
-    return NextResponse.json({ error: 'Connection failed' }, { status: 500 });
-  }
+  const { error } = await supabase
+    .from('knowledge')
+    .update({ content, updated_at: new Date().toISOString() })
+    .eq('key', key);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
 }
