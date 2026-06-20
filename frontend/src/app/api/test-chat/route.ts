@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODELS = [
-  'google/gemma-2-9b-it:free',
-  'qwen/qwen-2.5-7b-instruct:free',
-  'meta-llama/llama-3.1-8b-instruct:free',
-];
+import { generateAIResponse, ChatMessage } from '@/lib/ai';
 
 const KNOWLEDGE_BASE = `# Informacion del Negocio
 
@@ -43,41 +37,7 @@ Tienda virtual de tecnologia
 - Pagos: Transferencia, Nequi, Daviplata, Tarjeta, Contraentrega
 - Devolucion: 5 dias habiles, producto sin uso`;
 
-const chatHistories = new Map<string, Array<{role: string; content: string}>>();
-
-async function tryModel(model: string, messages: Array<{role: string; content: string}>): Promise<string | null> {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENROUTER_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://whatsapp-auto-xiwi.vercel.app',
-      'X-Title': 'WhatsApp Auto',
-    },
-    body: JSON.stringify({ model, messages, max_tokens: 200 }),
-  });
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || null;
-}
-
-export async function POST(req: NextRequest) {
-  const { message, sessionId = 'test' } = await req.json();
-  if (!message) return NextResponse.json({ error: 'message required' }, { status: 400 });
-
-  if (!OPENROUTER_KEY) {
-    return NextResponse.json({ response: 'Error: OPENROUTER_API_KEY no configurada' }, { status: 500 });
-  }
-
-  try {
-    if (!chatHistories.has(sessionId)) {
-      chatHistories.set(sessionId, []);
-    }
-    const history = chatHistories.get(sessionId)!;
-
-    const messages = [
-      {
-        role: 'system',
-        content: `Eres el asistente virtual de WhatsApp de una tienda de tecnologia. Responde en espanol.
+const SYSTEM_PROMPT = `Eres el asistente virtual de WhatsApp de una tienda de tecnologia. Responde SIEMPRE en espanol.
 
 USA ESTA INFORMACION:
 ${KNOWLEDGE_BASE}
@@ -86,21 +46,35 @@ REGLAS ESTRICTAS:
 - Responde CORTO (2-3 oraciones maximo)
 - Espanol informal pero profesional
 - Maximo 1 emoji por mensaje
-- Si no tienes info exacta de precios, di que un asesor confirmara`
-      },
+- Si no tienes info exacta de precios, di que un asesor confirmara
+- Se amable y orientado a vender`;
+
+const chatHistories = new Map<string, ChatMessage[]>();
+
+export async function POST(req: NextRequest) {
+  const { message, sessionId = 'test' } = await req.json();
+  if (!message) return NextResponse.json({ error: 'message required' }, { status: 400 });
+
+  if (!process.env.OPENROUTER_API_KEY) {
+    return NextResponse.json({ response: 'Error: OPENROUTER_API_KEY no configurada en Vercel' }, { status: 500 });
+  }
+
+  try {
+    if (!chatHistories.has(sessionId)) {
+      chatHistories.set(sessionId, []);
+    }
+    const history = chatHistories.get(sessionId)!;
+
+    const messages: ChatMessage[] = [
+      { role: 'system', content: SYSTEM_PROMPT },
       ...history,
-      { role: 'user', content: message }
+      { role: 'user', content: message },
     ];
 
-    // Try models in order until one works
-    let response: string | null = null;
-    for (const model of MODELS) {
-      response = await tryModel(model, messages);
-      if (response) break;
-    }
+    const response = await generateAIResponse(messages);
 
     if (!response) {
-      return NextResponse.json({ response: 'Los modelos estan ocupados, intenta en unos segundos.' });
+      return NextResponse.json({ response: 'Los servidores de IA estan saturados. Intenta de nuevo en unos segundos.' });
     }
 
     history.push({ role: 'user', content: message });
