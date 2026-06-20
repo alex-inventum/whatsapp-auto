@@ -1,0 +1,122 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+
+interface Message {
+  role: 'user' | 'ai';
+  text: string;
+  time: string;
+}
+
+export default function TestChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const chatRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatRef.current?.scrollTo(0, chatRef.current.scrollHeight);
+  }, [messages]);
+
+  async function sendMessage() {
+    if (!input.trim() || loading) return;
+
+    const userMsg: Message = { role: 'user', text: input, time: new Date().toLocaleTimeString() };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/test-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
+      });
+      const data = await res.json();
+      const aiMsg: Message = { role: 'ai', text: data.response || 'Sin respuesta', time: new Date().toLocaleTimeString() };
+      setMessages(prev => [...prev, aiMsg]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'ai', text: 'Error de conexion', time: new Date().toLocaleTimeString() }]);
+    }
+    setLoading(false);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col max-w-3xl mx-auto">
+      {/* Header */}
+      <header className="p-4 border-b border-[var(--border)]">
+        <a href="/dashboard" className="text-xs mb-2 inline-block" style={{color: 'var(--primary)'}}>\u2190 Volver al Dashboard</a>
+        <h1 className="text-xl font-bold" style={{color: 'var(--text-primary)'}}>Probar IA</h1>
+        <p className="text-xs mt-1" style={{color: 'var(--text-secondary)'}}>Simula una conversacion como si fueras un cliente. La IA responde usando la base de conocimiento.</p>
+      </header>
+
+      {/* Chat area */}
+      <div ref={chatRef} className="flex-1 overflow-auto p-4 space-y-3" style={{maxHeight: 'calc(100vh - 180px)'}}>
+        {messages.length === 0 && (
+          <div className="text-center py-16" style={{color: 'var(--text-secondary)'}}>
+            <div className="text-4xl mb-3">\uD83E\uDD16</div>
+            <p className="text-sm">Escribe un mensaje para probar la IA</p>
+            <p className="text-xs mt-1">Ej: \"Hola, tienen cargadores para laptop?\"</p>
+          </div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+            <div
+              className="max-w-[80%] rounded-2xl px-4 py-2.5"
+              style={{
+                background: msg.role === 'user' ? 'var(--primary)' : 'var(--bg-card)',
+                color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
+                border: msg.role === 'ai' ? '1px solid var(--border)' : 'none',
+                borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
+                borderBottomLeftRadius: msg.role === 'ai' ? '4px' : '16px',
+              }}
+            >
+              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+              <p className="text-[10px] mt-1 opacity-60 text-right">{msg.time}</p>
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start animate-fade-in">
+            <div className="card px-4 py-3 rounded-2xl" style={{borderBottomLeftRadius:'4px'}}>
+              <div className="flex gap-1">
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{animationDelay:'0s'}}/>
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{animationDelay:'0.15s'}}/>
+                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{animationDelay:'0.3s'}}/>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-[var(--border)]">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Escribe un mensaje como cliente..."
+            className="input flex-1"
+            disabled={loading}
+          />
+          <button
+            onClick={sendMessage}
+            disabled={loading || !input.trim()}
+            className="btn-primary px-5 disabled:opacity-50"
+          >
+            Enviar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
