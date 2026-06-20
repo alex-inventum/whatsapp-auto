@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
-const MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
+const MODELS = [
+  'google/gemma-2-9b-it:free',
+  'qwen/qwen-2.5-7b-instruct:free',
+  'meta-llama/llama-3.1-8b-instruct:free',
+];
 
 const KNOWLEDGE_BASE = `# Informacion del Negocio
 
@@ -21,13 +25,11 @@ Tienda virtual de tecnologia
 ## Productos Principales
 
 ### EcoFlow River 3
-- Capacidad: 256Wh
-- Potencia: 600W
+- Capacidad: 256Wh, Potencia: 600W
 - Ideal para: camping, emergencias, trabajo remoto
 
 ### EcoFlow River 2 Pro
-- Capacidad: 768Wh
-- Potencia: 800W
+- Capacidad: 768Wh, Potencia: 800W
 - Ideal para: uso prolongado, multiples dispositivos
 
 ### Cargadores para Portatil
@@ -42,6 +44,21 @@ Tienda virtual de tecnologia
 - Devolucion: 5 dias habiles, producto sin uso`;
 
 const chatHistories = new Map<string, Array<{role: string; content: string}>>();
+
+async function tryModel(model: string, messages: Array<{role: string; content: string}>): Promise<string | null> {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENROUTER_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://whatsapp-auto-xiwi.vercel.app',
+      'X-Title': 'WhatsApp Auto',
+    },
+    body: JSON.stringify({ model, messages, max_tokens: 200 }),
+  });
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || null;
+}
 
 export async function POST(req: NextRequest) {
   const { message, sessionId = 'test' } = await req.json();
@@ -60,35 +77,31 @@ export async function POST(req: NextRequest) {
     const messages = [
       {
         role: 'system',
-        content: `Eres el asistente virtual de WhatsApp de una tienda de tecnologia.
+        content: `Eres el asistente virtual de WhatsApp de una tienda de tecnologia. Responde en espanol.
 
 USA ESTA INFORMACION:
 ${KNOWLEDGE_BASE}
 
-REGLAS:
+REGLAS ESTRICTAS:
 - Responde CORTO (2-3 oraciones maximo)
 - Espanol informal pero profesional
 - Maximo 1 emoji por mensaje
-- Si no tienes info exacta de precios, di que un asesor confirmara
-- Se amable y util`
+- Si no tienes info exacta de precios, di que un asesor confirmara`
       },
       ...history,
       { role: 'user', content: message }
     ];
 
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://whatsapp-auto-xiwi.vercel.app',
-        'X-Title': 'WhatsApp Auto',
-      },
-      body: JSON.stringify({ model: MODEL, messages }),
-    });
+    // Try models in order until one works
+    let response: string | null = null;
+    for (const model of MODELS) {
+      response = await tryModel(model, messages);
+      if (response) break;
+    }
 
-    const data = await res.json();
-    const response = data.choices?.[0]?.message?.content || 'No pude generar respuesta';
+    if (!response) {
+      return NextResponse.json({ response: 'Los modelos estan ocupados, intenta en unos segundos.' });
+    }
 
     history.push({ role: 'user', content: message });
     history.push({ role: 'assistant', content: response });
