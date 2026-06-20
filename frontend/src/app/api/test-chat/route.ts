@@ -1,74 +1,97 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
-const OBSIDIAN_HOST = process.env.OBSIDIAN_HOST || 'https://127.0.0.1:27124';
-const OBSIDIAN_KEY = process.env.OBSIDIAN_API_KEY || '';
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || '';
+const MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
 
-const genAI = new GoogleGenerativeAI(GEMINI_KEY);
+const KNOWLEDGE_BASE = `# Informacion del Negocio
 
-const chatHistories = new Map<string, Array<{role: string; parts: Array<{text: string}>}>>();
+## Tipo
+Tienda virtual de tecnologia
 
-async function fetchNote(path: string): Promise<string> {
-  try {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    const res = await fetch(`${OBSIDIAN_HOST}/vault/${encodeURIComponent(path)}`, {
-      headers: { Authorization: `Bearer ${OBSIDIAN_KEY}` },
-    });
-    if (!res.ok) return '';
-    return await res.text();
-  } catch {
-    return '';
-  }
-}
+## Especialidad
+- Cargadores para portatil (todas las marcas)
+- Estaciones de energia portatil (EcoFlow River 3, River 2 Pro, etc.)
+- Accesorios de carga y energia
 
-async function getKnowledgeBase(): Promise<string> {
-  const notes = [
-    'Negocio/Info General.md',
-    'Negocio/Productos.md',
-    'Negocio/FAQ.md',
-    'Negocio/Reglas IA.md',
-  ];
-  const contents = await Promise.all(notes.map(fetchNote));
-  return contents.filter(Boolean).join('\n\n---\n\n');
-}
+## Horario de Atencion
+- Lunes a Viernes: 8:00 AM - 12:00 PM y 2:00 PM - 5:30 PM
+- Sabados: Consultar disponibilidad
+- Domingos: Cerrado
+
+## Productos Principales
+
+### EcoFlow River 3
+- Capacidad: 256Wh
+- Potencia: 600W
+- Ideal para: camping, emergencias, trabajo remoto
+
+### EcoFlow River 2 Pro
+- Capacidad: 768Wh
+- Potencia: 800W
+- Ideal para: uso prolongado, multiples dispositivos
+
+### Cargadores para Portatil
+- Universales (45W, 65W, 90W, 100W)
+- Por marca: Dell, HP, Lenovo, Asus, Acer, Apple
+- USB-C Power Delivery
+
+## FAQ
+- Envios a todo el pais (2-5 dias habiles)
+- Garantia: EcoFlow 2 anos, Cargadores 6 meses
+- Pagos: Transferencia, Nequi, Daviplata, Tarjeta, Contraentrega
+- Devolucion: 5 dias habiles, producto sin uso`;
+
+const chatHistories = new Map<string, Array<{role: string; content: string}>>();
 
 export async function POST(req: NextRequest) {
   const { message, sessionId = 'test' } = await req.json();
   if (!message) return NextResponse.json({ error: 'message required' }, { status: 400 });
 
-  if (!GEMINI_KEY) {
-    return NextResponse.json({ response: 'Error: GEMINI_API_KEY no configurada en variables de entorno' }, { status: 500 });
+  if (!OPENROUTER_KEY) {
+    return NextResponse.json({ response: 'Error: OPENROUTER_API_KEY no configurada' }, { status: 500 });
   }
 
   try {
-    const kb = await getKnowledgeBase();
-
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      systemInstruction: `Eres el asistente virtual de WhatsApp de una tienda de tecnologia.
-
-USA ESTA INFORMACION PARA RESPONDER:
-${kb}
-
-REGLAS:
-- Responde CORTO (2-3 oraciones maximo)
-- Espanol informal pero profesional
-- Maximo 1 emoji por mensaje
-- Si no tienes info exacta, di que un asesor confirmara`,
-    });
-
     if (!chatHistories.has(sessionId)) {
       chatHistories.set(sessionId, []);
     }
     const history = chatHistories.get(sessionId)!;
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(message);
-    const response = result.response.text();
+    const messages = [
+      {
+        role: 'system',
+        content: `Eres el asistente virtual de WhatsApp de una tienda de tecnologia.
 
-    history.push({ role: 'user', parts: [{ text: message }] });
-    history.push({ role: 'model', parts: [{ text: response }] });
+USA ESTA INFORMACION:
+${KNOWLEDGE_BASE}
+
+REGLAS:
+- Responde CORTO (2-3 oraciones maximo)
+- Espanol informal pero profesional
+- Maximo 1 emoji por mensaje
+- Si no tienes info exacta de precios, di que un asesor confirmara
+- Se amable y util`
+      },
+      ...history,
+      { role: 'user', content: message }
+    ];
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://whatsapp-auto-xiwi.vercel.app',
+        'X-Title': 'WhatsApp Auto',
+      },
+      body: JSON.stringify({ model: MODEL, messages }),
+    });
+
+    const data = await res.json();
+    const response = data.choices?.[0]?.message?.content || 'No pude generar respuesta';
+
+    history.push({ role: 'user', content: message });
+    history.push({ role: 'assistant', content: response });
     if (history.length > 20) history.splice(0, 2);
 
     return NextResponse.json({ response });
