@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import PageHeader from '@/components/PageHeader';
 
 interface Message {
   id: string;
@@ -27,34 +28,30 @@ export default function MessagesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="bg-dark text-white p-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-xl font-bold">Mensajes Recientes</h1>
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto p-6">
+    <div>
+      <PageHeader title="Mensajes Recientes" subtitle="Ultimos 50 mensajes recibidos" />
+      <div className="p-6 md:p-8">
         <div className="space-y-2">
           {messages.length === 0 && (
-            <p className="text-gray-500 text-center py-8">No hay mensajes aun</p>
+            <div className="text-center py-12" style={{color:'var(--text-secondary)'}}>
+              <p className="text-lg mb-1">No hay mensajes aun</p>
+              <p className="text-sm">Los mensajes recibidos apareceran aqui</p>
+            </div>
           )}
-          {messages.map((msg) => (
-            <div key={msg.id} className="bg-white rounded-lg p-4 border">
+          {messages.map((msg, i) => (
+            <div key={msg.id} className="card p-4 animate-slide-in" style={{animationDelay:`${i*0.03}s`}}>
               <div className="flex justify-between items-start">
-                <div>
-                  <span className="font-medium text-sm">{msg.sender}</span>
-                  {msg.classification && (
-                    <span className="ml-2 bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">{msg.classification}</span>
-                  )}
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm" style={{color:'var(--text-primary)'}}>{msg.sender.replace('@c.us','')}</span>
+                  {msg.classification && <span className="tag tag-purple">{msg.classification}</span>}
                 </div>
-                <span className="text-xs text-gray-400">{new Date(msg.timestamp).toLocaleString()}</span>
+                <span className="text-xs" style={{color:'var(--text-secondary)',opacity:0.7}}>{new Date(msg.timestamp).toLocaleString()}</span>
               </div>
-              <p className="mt-1 text-gray-700">{msg.body || `[${msg.type}]`}</p>
+              <p className="mt-2 text-sm" style={{color:'var(--text-secondary)'}}>{msg.body || `[${msg.type}]`}</p>
             </div>
           ))}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
