@@ -1,53 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAIResponse, ChatMessage } from '@/lib/ai';
+import { createClient } from '@supabase/supabase-js';
 
-const KNOWLEDGE_BASE = `# Informacion del Negocio
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-## Tipo
-Tienda virtual de tecnologia
-
-## Especialidad
-- Cargadores para portatil (todas las marcas)
-- Estaciones de energia portatil (EcoFlow River 3, River 2 Pro, etc.)
-- Accesorios de carga y energia
-
-## Horario de Atencion
-- Lunes a Viernes: 8:00 AM - 12:00 PM y 2:00 PM - 5:30 PM
-- Sabados: Consultar disponibilidad
-- Domingos: Cerrado
-
-## Productos Principales
-
-### EcoFlow River 3
-- Capacidad: 256Wh, Potencia: 600W
-- Ideal para: camping, emergencias, trabajo remoto
-
-### EcoFlow River 2 Pro
-- Capacidad: 768Wh, Potencia: 800W
-- Ideal para: uso prolongado, multiples dispositivos
-
-### Cargadores para Portatil
-- Universales (45W, 65W, 90W, 100W)
-- Por marca: Dell, HP, Lenovo, Asus, Acer, Apple
-- USB-C Power Delivery
-
-## FAQ
-- Envios a todo el pais (2-5 dias habiles)
-- Garantia: EcoFlow 2 anos, Cargadores 6 meses
-- Pagos: Transferencia, Nequi, Daviplata, Tarjeta, Contraentrega
-- Devolucion: 5 dias habiles, producto sin uso`;
-
-const SYSTEM_PROMPT = `Eres el asistente virtual de WhatsApp de una tienda de tecnologia. Responde SIEMPRE en espanol.
-
-USA ESTA INFORMACION:
-${KNOWLEDGE_BASE}
-
-REGLAS ESTRICTAS:
-- Responde CORTO (2-3 oraciones maximo)
-- Espanol informal pero profesional
-- Maximo 1 emoji por mensaje
-- Si no tienes info exacta de precios, di que un asesor confirmara
-- Se amable y orientado a vender`;
+// Lee la base de conocimiento desde Supabase
+async function getKnowledgeBase(): Promise<string> {
+  try {
+    const { data } = await supabase.from('knowledge').select('*').order('key');
+    if (!data || data.length === 0) return '';
+    return data.map((r: any) => `## ${r.label}\n${r.content}`).join('\n\n---\n\n');
+  } catch {
+    return '';
+  }
+}
 
 const chatHistories = new Map<string, ChatMessage[]>();
 
@@ -60,13 +29,26 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const kb = await getKnowledgeBase();
+    const systemPrompt = `Eres el asistente virtual de WhatsApp de una tienda de tecnologia. Responde SIEMPRE en espanol.
+
+USA ESTA INFORMACION:
+${kb}
+
+REGLAS ESTRICTAS:
+- Responde CORTO (2-3 oraciones maximo)
+- Espanol informal pero profesional
+- Maximo 1 emoji por mensaje
+- Si no tienes info exacta de precios, di que un asesor confirmara
+- Se amable y orientado a vender`;
+
     if (!chatHistories.has(sessionId)) {
       chatHistories.set(sessionId, []);
     }
     const history = chatHistories.get(sessionId)!;
 
     const messages: ChatMessage[] = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
       ...history,
       { role: 'user', content: message },
     ];
