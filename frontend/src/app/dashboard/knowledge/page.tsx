@@ -82,8 +82,8 @@ export default function KnowledgePage() {
                 onClick={() => selectTab(tab.key)}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-left"
                 style={active === tab.key
-                  ? { background: 'rgba(0,168,132,0.12)', color: 'var(--primary-light)', fontWeight: 500 }
-                  : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+                  ? { background: 'rgba(0,168,132,0.1)', color: 'var(--primary-light)', fontWeight: 500, border: '1px solid rgba(0,168,132,0.2)', boxShadow: '0 0 16px rgba(0,168,132,0.08)' }
+                  : { background: 'rgba(255,255,255,0.03)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d={tab.icon} /></svg>
                 {tab.label}

@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Complete Apple-style glassmorphism redesign - update the design system (CSS variables, glass effects, glowing borders, animations) and apply to all components across the entire frontend",
+  "status": "completed",
+  "steps": [
+    "Step 1 - Redesign globals.css with Apple-inspired glassmorphism design system: (a) Update :root CSS variables to use a deeper, more refined dark palette suitable for glass effects (darker bg-main near black #050505-#0a0a0a, semi-transparent bg-card, refined text colors). (b) Add a new animated gradient background on body using subtle moving gradients (purple/blue/teal ambient light blobs) to give depth behind glass panels. (c) Rewrite the .glass class with heavy blur (backdrop-filter: blur(20-40px)), very low opacity backgrounds (rgba white ~3-5%), and subtle luminous borders (rgba white ~8-15%). (d) Rewrite the .card class to use glassmorphism: transparent/semi-transparent background, backdrop-filter blur, border with rgba white (subtle glow effect), add a subtle animated border glow using box-shadow or a pseudo-element with gradient borders. (e) Add a .glow-border class that creates animated light traveling along card borders using a conic-gradient or rotating gradient pseudo-element behind the card. (f) Update .btn-primary to have a glass look with glow effect on hover (text white, background with blur, luminous border, box-shadow glow on hover). (g) Update .btn-secondary and .btn-danger with glass styling. (h) Update .input class with glass background, subtle border glow on focus. (i) Update .nav-item with glass hover state and active state showing a soft glow. (j) Update .tag classes to use glass-style backgrounds. (k) Add smooth transition animations (cubic-bezier easing, subtle scale transforms). (l) Add keyframe animation for the ambient background gradient movement. (m) Add a subtle shimmer/pulse animation for active glow borders.",
+    "Step 2 - Update tailwind.config.js: Add custom colors, extend backdrop-blur values, add animation keyframes to the Tailwind config to complement the CSS changes.",
+    "Step 3 - Update frontend/src/app/layout.tsx: Add SF Pro Display / SF Pro Text font loading (or keep Inter but add -apple-system as primary), ensure the body has the animated gradient background class applied.",
+    "Step 4 - Update frontend/src/app/page.tsx (landing page): Apply glass card effects to the feature cards, add glow border to the main container, make the logo have a subtle glow, style the CTA button with the new glass primary button style.",
+    "Step 5 - Update frontend/src/app/dashboard/layout.tsx (sidebar): Make the sidebar fully glass (transparent with heavy blur), add subtle glow to the sidebar border, style the logo/branding area with a glow effect, update nav items to show glass hover states with light border animation on active item, make the plan card at bottom glass with subtle glow.",
+    "Step 6 - Update frontend/src/components/PageHeader.tsx: Increase the glass blur effect, add a subtle bottom border glow.",
+    "Step 7 - Update frontend/src/app/dashboard/page.tsx (dashboard home): Apply glow-border effect to stat cards, add ambient light glow to the icon containers, style quick action cards with glass and hover glow effects.",
+    "Step 8 - Update all remaining dashboard sub-pages to use the new glass styling consistently. The pages (auto-replies, classifications, forwards, inbox, knowledge, messages, status, test-chat) already use .card and .input classes so they will inherit most changes, but review each for any hardcoded bg colors in inline styles that need updating to glass-compatible values. Specifically update inline style={{background: 'var(--bg-card)'}} references in these files to use the new glass variables, and ensure form sections and list items look cohesive with the new design."
+  ],
+  "acceptance_criteria": [
+    "Running `npm run build` in the frontend directory completes without errors",
+    "globals.css contains glassmorphism design system with: animated background gradient, heavy backdrop-filter blur effects (20px+), semi-transparent card backgrounds, animated glowing borders using gradients or box-shadows, refined dark color palette",
+    "The sidebar in dashboard/layout.tsx uses glass effect (transparent + blur + subtle glow border)",
+    "Cards throughout the app have visible glass effect (blur, transparency) and glowing/animated border lights",
+    "The landing page (page.tsx) displays the new glass aesthetic",
+    "All existing functionality (navigation, forms, buttons, data display) remains intact - only visual styling changes"
+  ],
+  "verification": [
+    "Run `cd /projects/sandbox/whatsapp-auto/frontend && npm install && npm run build` and confirm it completes with exit code 0"
+  ],
+  "blocked_reason": null,
+  "findings": "Build verification could not run due to INTEGRATIONS_ONLY network mode (npm registry access blocked, node_modules not pre-installed). All changes are pure CSS/styling modifications with no new imports, no new dependencies, no TypeScript type changes, and no logic changes. Basic syntax validation passed for all files. The CSS variables retain their original names so all inline style references throughout the app remain functional. Review feedback addressed: (1) .card overflow changed from hidden to clip, (2) @property --glow-angle declared and glowRotate keyframe added for rotating conic-gradient border, (3) hardcoded rgba(255,255,255,0.06) border values replaced with var(--border) in layout.tsx and test-chat/page.tsx."
+}
