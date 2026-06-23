@@ -37,11 +37,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           background: 'rgba(10, 10, 10, 0.8)',
           backdropFilter: 'blur(40px)',
           WebkitBackdropFilter: 'blur(40px)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+          borderRight: '1px solid var(--border)',
           boxShadow: '1px 0 30px rgba(0, 0, 0, 0.3)',
         }}
       >
-        <div className="p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        <div className="p-5 border-b" style={{ borderColor: 'var(--border)' }}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', boxShadow: '0 0 20px rgba(0,168,132,0.3)' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        <div className="p-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        <div className="p-3 border-t" style={{ borderColor: 'var(--border)' }}>
           <div className="card p-3" style={{ background: 'rgba(0, 168, 132, 0.05)', border: '1px solid rgba(0, 168, 132, 0.15)' }}>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Plan Activo</p>
             <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--primary-light)' }}>MVP</p>

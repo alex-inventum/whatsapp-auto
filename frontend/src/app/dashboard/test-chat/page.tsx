@@ -82,7 +82,7 @@ export default function TestChatPage() {
         )}
       </div>
 
-      <div className="p-4 border-t" style={{borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(5,5,5,0.6)', backdropFilter: 'blur(20px)'}}>
+      <div className="p-4 border-t" style={{borderColor: 'var(--border)', background: 'rgba(5,5,5,0.6)', backdropFilter: 'blur(20px)'}}>
         <div className="flex gap-2 max-w-3xl mx-auto">
           <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje como cliente..." className="input flex-1" disabled={loading} />
