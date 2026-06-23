@@ -25,5 +25,5 @@
     "Run `cd /projects/sandbox/whatsapp-auto/frontend && npm install && npm run build` and confirm it completes with exit code 0"
   ],
   "blocked_reason": null,
-  "findings": "Build verification could not run due to INTEGRATIONS_ONLY network mode (npm registry access blocked, node_modules not pre-installed). All changes are pure CSS/styling modifications with no new imports, no new dependencies, no TypeScript type changes, and no logic changes. Basic syntax validation passed for all files. The CSS variables retain their original names so all inline style references throughout the app remain functional."
+  "findings": "Build verification could not run due to INTEGRATIONS_ONLY network mode (npm registry access blocked, node_modules not pre-installed). All changes are pure CSS/styling modifications with no new imports, no new dependencies, no TypeScript type changes, and no logic changes. Basic syntax validation passed for all files. The CSS variables retain their original names so all inline style references throughout the app remain functional. Review feedback addressed: (1) .card overflow changed from hidden to clip, (2) @property --glow-angle declared and glowRotate keyframe added for rotating conic-gradient border, (3) hardcoded rgba(255,255,255,0.06) border values replaced with var(--border) in layout.tsx and test-chat/page.tsx."
 }
