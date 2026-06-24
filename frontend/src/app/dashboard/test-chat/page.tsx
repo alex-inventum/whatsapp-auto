@@ -38,15 +38,15 @@ export default function TestChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 0px)' }}>
       <PageHeader title="Probar IA" subtitle="Simula una conversacion como cliente. La IA usa tu base de conocimiento." />
 
       <div ref={chatRef} className="flex-1 overflow-auto p-4 md:p-6 space-y-3">
         {messages.length === 0 && (
           <div className="text-center py-16" style={{color: 'var(--text-secondary)'}}>
-            <div className="text-5xl mb-3">\uD83E\uDD16</div>
+            <div className="text-5xl mb-3">{String.fromCodePoint(0x1F916)}</div>
             <p className="text-sm">Escribe un mensaje para probar la IA</p>
-            <p className="text-xs mt-1">Ej: \"Hola, tienen la EcoFlow River 3?\"</p>
+            <p className="text-xs mt-2" style={{color:'var(--text-secondary)', opacity:0.7}}>Ej: &quot;Hola, tienen la EcoFlow River 3?&quot;</p>
           </div>
         )}
         {messages.map((msg, i) => (

@@ -6,10 +6,12 @@ import PageHeader from '@/components/PageHeader';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ messages: 0, conversations: 0, rules: 0, pending: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => { loadStats(); }, []);
 
   async function loadStats() {
+    setLoading(true);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const [msgs, convs, replies, pending] = await Promise.all([
       supabase.from('messages').select('id', { count: 'exact', head: true }).gte('timestamp', today.toISOString()),
@@ -23,6 +25,7 @@ export default function Dashboard() {
       rules: replies.count || 0,
       pending: pending.count || 0,
     });
+    setLoading(false);
   }
 
   const cards = [
@@ -45,7 +48,11 @@ export default function Dashboard() {
                   <svg width="16" height="16" fill={c.color} viewBox="0 0 24 24"><path d={c.icon} /></svg>
                 </div>
               </div>
-              <p className="text-3xl font-bold mt-3" style={{ color: 'var(--text-primary)' }}>{c.value}</p>
+              {loading ? (
+                <div className="h-9 mt-3 rounded bg-[var(--bg-hover)] animate-pulse" />
+              ) : (
+                <p className="text-3xl font-bold mt-3" style={{ color: 'var(--text-primary)' }}>{c.value}</p>
+              )}
             </div>
           ))}
         </div>
@@ -54,18 +61,18 @@ export default function Dashboard() {
         <div>
           <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Acciones Rapidas</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="/dashboard/test-chat" className="card p-5 hover:scale-[1.02] transition-transform">
-              <div className="text-2xl mb-2">\uD83E\uDD16</div>
+            <a href="/dashboard/test-chat" className="card p-5 hover:border-[var(--primary)] transition-all">
+              <div className="text-2xl mb-2">{String.fromCodePoint(0x1F916)}</div>
               <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Probar IA</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Simula una conversacion con el bot</p>
             </a>
-            <a href="/dashboard/inbox" className="card p-5 hover:scale-[1.02] transition-transform">
-              <div className="text-2xl mb-2">\uD83D\uDCE5</div>
+            <a href="/dashboard/inbox" className="card p-5 hover:border-[var(--primary)] transition-all">
+              <div className="text-2xl mb-2">{String.fromCodePoint(0x1F4E5)}</div>
               <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Ver Inbox</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Conversaciones por estado</p>
             </a>
-            <a href="/dashboard/knowledge" className="card p-5 hover:scale-[1.02] transition-transform">
-              <div className="text-2xl mb-2">\uD83E\uDDE0</div>
+            <a href="/dashboard/knowledge" className="card p-5 hover:border-[var(--primary)] transition-all">
+              <div className="text-2xl mb-2">{String.fromCodePoint(0x1F9E0)}</div>
               <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>Base de Conocimiento</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Edita lo que sabe la IA</p>
             </a>
