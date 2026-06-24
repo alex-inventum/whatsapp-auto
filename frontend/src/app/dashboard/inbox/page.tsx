@@ -20,6 +20,17 @@ const STATE_CONFIG: Record<string, { label: string; color: string; bg: string }>
   pago_pendiente: { label: 'Pago Pendiente', color: '#F97316', bg: 'rgba(249,115,22,0.15)' },
 };
 
+function timeAgo(ts: string) {
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Ahora';
+  if (mins < 60) return `hace ${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `hace ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  return `hace ${days}d`;
+}
+
 export default function InboxPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [filter, setFilter] = useState('all');
@@ -65,8 +76,11 @@ export default function InboxPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{background:cfg.color}}/>
-                    <div className="min-w-0">
-                      <span className="font-medium text-sm" style={{color:'var(--text-primary)'}}>{conv.phone.replace('@c.us','')}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm" style={{color:'var(--text-primary)'}}>{conv.phone.replace('@c.us','').replace('@lid','')}</span>
+                        <span className="text-xs" style={{color:'var(--text-secondary)'}}>{timeAgo(conv.updated_at)}</span>
+                      </div>
                       <p className="text-xs mt-0.5 truncate" style={{color:'var(--text-secondary)'}}>{conv.last_message}</p>
                     </div>
                   </div>
