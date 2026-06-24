@@ -6,11 +6,12 @@ import { useState } from 'react';
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard', icon: 'M4 13h6a1 1 0 001-1V4a1 1 0 00-1-1H4a1 1 0 00-1 1v8a1 1 0 001 1zm0 8h6a1 1 0 001-1v-4a1 1 0 00-1-1H4a1 1 0 00-1 1v4a1 1 0 001 1zm10 0h6a1 1 0 001-1v-8a1 1 0 00-1-1h-6a1 1 0 00-1 1v8a1 1 0 001 1zm0-18v4a1 1 0 001 1h6a1 1 0 001-1V4a1 1 0 00-1-1h-6a1 1 0 00-1 1z' },
   { href: '/dashboard/inbox', label: 'Inbox', icon: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H4.99V5H19v10z' },
-  { href: '/dashboard/test-chat', label: 'Probar IA', icon: 'M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z' },
-  { href: '/dashboard/auto-replies', label: 'Respuestas', icon: 'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z' },
+  { href: '/dashboard/agent', label: 'Agente IA', icon: 'M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z' },
+  { href: '/dashboard/test-chat', label: 'Probar IA', icon: 'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z' },
+  { href: '/dashboard/auto-replies', label: 'Respuestas', icon: 'M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z' },
   { href: '/dashboard/forwards', label: 'Reenvios', icon: 'M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z' },
   { href: '/dashboard/classifications', label: 'Clasificacion', icon: 'M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z' },
-  { href: '/dashboard/knowledge', label: 'Conocimiento', icon: 'M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z' },
+  { href: '/dashboard/knowledge', label: 'Conocimiento', icon: 'M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3z' },
   { href: '/dashboard/messages', label: 'Mensajes', icon: 'M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z' },
   { href: '/dashboard/status', label: 'Estado', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' },
 ];
@@ -21,7 +22,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex">
-      {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(true)}
         className="md:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-lg flex items-center justify-center"
@@ -30,7 +30,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <svg width="20" height="20" fill="var(--text-primary)" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       </button>
 
-      {/* Sidebar */}
       <aside
         className={`fixed md:sticky top-0 h-screen w-64 border-r flex flex-col z-40 transition-transform ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
         style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
@@ -45,7 +44,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Panel de control</p>
             </div>
           </div>
-          {/* Close button mobile */}
           <button onClick={() => setMobileOpen(false)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center" style={{background:'var(--bg-hover)'}}>
             <svg width="16" height="16" fill="var(--text-secondary)" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
           </button>
@@ -71,12 +69,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 bg-black/50 z-30" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Main content */}
       <main className="flex-1 min-w-0 overflow-auto">
         {children}
       </main>
