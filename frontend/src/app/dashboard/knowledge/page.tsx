@@ -55,10 +55,10 @@ export default function KnowledgePage() {
         body: JSON.stringify({ key: active, content }),
       });
       if (res.ok) {
-        setStatus({ type: 'ok', msg: 'Guardado correctamente' });
+        setStatus({ type: 'ok', msg: 'Guardado' });
         setItems({ ...items, [active]: { ...items[active], content } });
       } else {
-        setStatus({ type: 'err', msg: 'No se pudo guardar' });
+        setStatus({ type: 'err', msg: 'Error al guardar' });
       }
     } catch {
       setStatus({ type: 'err', msg: 'Error de conexion' });
@@ -80,13 +80,17 @@ export default function KnowledgePage() {
               <button
                 key={tab.key}
                 onClick={() => selectTab(tab.key)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-left"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all text-left relative"
                 style={active === tab.key
                   ? { background: 'rgba(0,168,132,0.12)', color: 'var(--primary-light)', fontWeight: 500 }
                   : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
               >
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d={tab.icon} /></svg>
                 {tab.label}
+                {/* Unsaved indicator */}
+                {active === tab.key && dirty && (
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-yellow-400" title="Cambios sin guardar" />
+                )}
               </button>
             ))}
           </div>
@@ -94,9 +98,9 @@ export default function KnowledgePage() {
           {/* Editor */}
           <div className="card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
-              <div>
+              <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{TABS.find(t => t.key === active)?.label}</h3>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{content.length} caracteres</p>
+                {dirty && <span className="tag" style={{background:'rgba(234,179,8,0.15)',color:'#EAB308',fontSize:'10px'}}>Sin guardar</span>}
               </div>
               <div className="flex items-center gap-3">
                 {status.msg && (
