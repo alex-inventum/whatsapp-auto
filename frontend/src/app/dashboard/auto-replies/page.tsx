@@ -38,6 +38,7 @@ export default function AutoRepliesPage() {
   }
 
   async function deleteRule(id: string) {
+    if (!confirm('Estas seguro de eliminar esta regla?')) return;
     await supabase.from('auto_replies').delete().eq('id', id);
     loadRules();
   }

@@ -41,6 +41,7 @@ export default function ForwardsPage() {
   }
 
   async function deleteRule(id: string) {
+    if (!confirm('Estas seguro de eliminar esta regla de reenvio?')) return;
     await supabase.from('forward_rules').delete().eq('id', id);
     loadRules();
   }
@@ -78,7 +79,7 @@ export default function ForwardsPage() {
             <div key={rule.id} className="card p-4 flex items-center justify-between animate-slide-in" style={{animationDelay:`${i*0.05}s`}}>
               <div className="flex items-center gap-2 text-sm flex-wrap">
                 <span style={{color:'var(--text-secondary)'}}>{rule.from_number || 'Cualquiera'}</span>
-                <span style={{color:'var(--primary)'}}>\u2192</span>
+                <span style={{color:'var(--primary)'}}>&#8594;</span>
                 <span className="font-medium" style={{color:'var(--text-primary)'}}>{rule.forward_to}</span>
                 {rule.message_type && <span className="tag tag-blue">{rule.message_type}</span>}
                 {rule.keyword && <span className="tag tag-purple">{rule.keyword}</span>}

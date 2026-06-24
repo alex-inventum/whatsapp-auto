@@ -31,6 +31,7 @@ export default function ClassificationsPage() {
   }
 
   async function deleteRule(id: string) {
+    if (!confirm('Estas seguro de eliminar esta clasificacion?')) return;
     await supabase.from('classification_rules').delete().eq('id', id);
     loadRules();
   }
