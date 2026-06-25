@@ -74,7 +74,7 @@ export default function InboxPage() {
             return (
               <div key={conv.id} className="card p-4 animate-slide-in" style={{animationDelay:`${i*0.03}s`}}>
                 <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <a href={`/dashboard/inbox/${encodeURIComponent(conv.phone)}`} className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
                     <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{background:cfg.color}}/>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ export default function InboxPage() {
                       </div>
                       <p className="text-xs mt-0.5 truncate" style={{color:'var(--text-secondary)'}}>{conv.last_message}</p>
                     </div>
-                  </div>
+                  </a>
                   <select value={conv.state} onChange={(e) => updateState(conv.id, e.target.value)} className="input" style={{width:'auto',fontSize:'12px',padding:'6px 28px 6px 10px'}}>
                     {Object.entries(STATE_CONFIG).map(([key, c]) => (
                       <option key={key} value={key}>{c.label}</option>
